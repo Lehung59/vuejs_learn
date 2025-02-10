@@ -1,6 +1,6 @@
 import {createRouter, createWebHistory} from 'vue-router'
 import HomeView from '../views/HomeView.vue'
-import Content1 from "@/components/Content1.vue";
+import IssueList from "@/components/IssueList.vue";
 import Content2 from "@/components/Content2.vue";
 import Content3 from "@/components/Content3.vue";
 import Content0 from "@/components/Content0.vue";
@@ -15,7 +15,7 @@ const router = createRouter({
             component: HomeView,
             children: [
                 {path: "home", component: Content0},
-                {path: "content1", component: Content1},
+                {path: "content1", component: IssueList},
                 {path: "content2", component: Content2},
                 {path: "content3", component: Content3},
             ]
