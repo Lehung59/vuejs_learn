@@ -1,33 +1,24 @@
 <template>
-  <a-table :columns="columns" :data-source="data">
-    <template #bodyCell="{ column, record }" >
-      <template v-if="column.key === 'name'" >
+  <a-table :columns="columns" :data-source="data" :customRow="customRow" style="cursor: pointer">
+    <template #bodyCell="{ column, record }">
+
+      <template v-if="column.key === 'name'">
         <a>
           {{ record.name }}
         </a>
       </template>
-      <template v-else-if="column.key === 'tags'">
+      <template v-else-if="column.key === 'severity'">
         <span>
           <a-tag
-              v-for="tag in record.tags"
+              v-for="tag in record.severity"
               :key="tag"
-              :color="tag === 'loser' ? 'volcano' : tag.length > 5 ? 'geekblue' : 'green'"
+              :color="tag === 1 ?  'volcano' :  'green'"
           >
-            {{ tag.toUpperCase() }}
+            {{ tag }}
           </a-tag>
         </span>
       </template>
-      <template v-else-if="column.key === 'action'">
-        <span>
-          <a>Invite 一 {{ record.name }}</a>
-          <a-divider type="vertical" />
-          <a>Delete</a>
-          <a-divider type="vertical" />
-          <a class="ant-dropdown-link">
-            More actions
-          </a>
-        </span>
-      </template>
+
     </template>
 
   </a-table>
@@ -35,6 +26,7 @@
 <script lang="ts" setup>
 
 import {ref} from "vue";
+import {useRouter} from "vue-router";
 
 interface DataRecord {
   id: string;
@@ -45,7 +37,7 @@ interface DataRecord {
   name: string;
   age: number;
   address: string;
-  severity: number;
+  severity: Array<number>;
 }
 
 const columns = [
@@ -77,7 +69,7 @@ const columns = [
 
 ];
 
-const data = ref<DataRecord[]> ([
+const data = ref<DataRecord[]>([
   {
     id: '1',
     title: 'Error 1',
@@ -87,7 +79,7 @@ const data = ref<DataRecord[]> ([
     name: 'John Brown',
     age: 32,
     address: 'New York No. 1 Lake Park, New York No. 1 Lake Park',
-    severity: 1,
+    severity: [1],
   },
   {
     id: '2',
@@ -98,14 +90,26 @@ const data = ref<DataRecord[]> ([
     name: 'Jim Green',
     age: 42,
     address: 'London No. 2 Lake Park, London No. 2 Lake Park',
-    severity: 1,
+    severity: [2],
   },
 
-]) ;
+]);
+const router = useRouter();
 
-const detail = (id: number) => {
-  console.log(id);
+const detail = () => {
+  console.log(111);
 }
 
+const customRow = (record: DataRecord) => ({
+  onClick: () => router.push(`/issue/${record.id}`)
+
+})
+
 </script>
+
+<style>
+.custom-row:hover {
+  cursor: pointer;
+}
+</style>
 
