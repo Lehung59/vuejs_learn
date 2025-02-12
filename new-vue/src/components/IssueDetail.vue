@@ -15,11 +15,11 @@
     </a-col>
     <a-col :span="6" :offset="1">
       <h2>Ảnh minh họa</h2>
-        <a-image
-            alt="avatar"
-            src="https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png"
-            :style="imgStyle"
-        />
+      <a-image
+          alt="avatar"
+          src="https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png"
+          :style="imgStyle"
+      />
 
     </a-col>
   </a-row>
@@ -33,13 +33,13 @@
         style="max-width: 600px"
     >
       <a-form-item label="TextArea">
-        <a-textarea :rows="4" />
+        <a-textarea :rows="4"/>
       </a-form-item>
 
       <a-form-item label="Upload">
         <a-upload action="/upload.do" list-type="picture-card">
           <div>
-            <PlusOutlined />
+            <PlusOutlined/>
             <div style="margin-top: 8px">Upload</div>
           </div>
         </a-upload>
@@ -51,30 +51,42 @@
     <a-col :span="16">
       <h2>Đánh giá</h2>
     </a-col>
-    <a-col :span="6" :offset="1">
-      <h2>Ảnh minh họa chi tiet</h2>
-    </a-col>
 
 
-    <a-row v-for="(cmt, index) in comments" :key="index" class="comment-row">
-      <a-col :span="16">
-        <div class="inline">
-          <p>ID: {{ cmt.id }}</p>
-          <p>Level: {{ cmt.level }}</p>
-        </div>
-      </a-col>
-
-      <a-col :span="6" :offset="1">
-
-          <a-image
-              alt="avatar"
-              :src="cmt.image"
-              class="comment-img"
-          />
-
-
-      </a-col>
-    </a-row>
+    <a-comment v-for="i in formattedData" :key="i.id" style="width: 100%; padding:0 10px">
+      <template #actions style="padding:0">
+        <span key="comment-nested-reply-to">Reply to</span>
+      </template>
+      <template #author style="padding:0 0">
+        <a>{{ i.name }}</a>
+        <span>&nbsp;  {{ i.time }}</span>
+      </template>
+      <template #avatar>
+        <a-avatar src="{{i.avatar}}" alt="avt"/>
+      </template>
+      <template #content>
+        <p>
+          {{ i.content }}
+        </p>
+      </template>
+      <a-comment v-for="j in i.reply" :key="j.id" style="padding:0 0">
+        <template #actions>
+          <span>Reply to</span>
+        </template>
+        <template #author>
+          <a>{{ j.name }}</a>
+          <span>&nbsp;  {{ i.time }}</span>
+        </template>
+        <template #avatar>
+          <a-avatar src="{{j.avatar}}" alt="avt"/>
+        </template>
+        <template #content>
+          <p>
+            {{ j.content }}
+          </p>
+        </template>
+      </a-comment>
+    </a-comment>
 
 
   </a-row>
@@ -89,7 +101,7 @@
 <script setup lang="ts">
 import {useRoute, useRouter} from "vue-router";
 import {ref, watchEffect} from "vue";
-import { PlusOutlined } from '@ant-design/icons-vue';
+import {PlusOutlined} from '@ant-design/icons-vue';
 
 import type {CSSProperties} from 'vue';
 
@@ -116,8 +128,8 @@ const handleOk = (e: MouseEvent) => {
   open.value = false;
 };
 
-const labelCol = { style: { width: '150px' } };
-const wrapperCol = { span: 14 };
+const labelCol = {style: {width: '150px'}};
+const wrapperCol = {span: 14};
 
 const cardStyle: CSSProperties = {
   width: '620px',
@@ -127,11 +139,85 @@ const imgStyle: CSSProperties = {
   width: '270px',
 };
 
-const comments = [
-  {id: "001", level: "High", image: "https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png"},
-  {id: "002", level: "Medium", image: "https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png"},
-  {id: "003", level: "Low", image: "https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png"}
+type Comment = {
+  id: number;
+  userId: number;
+  name: string;
+  avatar: string;
+  content: string;
+  tagList: number[];
+  time: number | string;
+  reply: Comment[];
+};
+
+const data = [
+  {
+    id: 1,
+    userId: 1,
+    name: "Le Hung",
+    avatar: "123",
+    content: "Day la cmt 1",
+    tagList: [5, 7],
+    time: 1739330827862,
+    reply: [
+      {
+        id: 2,
+        userId: 7,
+        name: "Le Hung 7",
+        avatar: "123456",
+        content: "Day la cmt 2",
+        reply: [],
+        tagList: [],
+        time: 1739330827862
+      },
+      {
+        id: 3,
+        userId: 5,
+        name: "Le Hung 5",
+        avatar: "123456789",
+        content: "Day la cmt 3",
+        reply: [],
+        tagList: [],
+        time: 1739330827862
+      }
+    ],
+  },
+
+  {
+    id: 4,
+    userId: 1,
+    name: "Le Hung 4",
+    avatar: "123",
+    content: "Day la cmt 4",
+    tagList: [5, 7],
+    time: 1739330827862,
+    reply: [
+      {
+        id: 5,
+        userId: 7,
+        name: "Le Hung 7",
+        avatar: "123456",
+        content: "Day la cmt 5",
+        reply: [],
+        tagList: [],
+        time: 1739330827862
+      }
+    ]
+  }
 ]
+
+
+const formatTime = (timestamp: number): string =>
+    new Date(timestamp).toLocaleString();
+
+const formattedData: Comment[] = data.map(comment => ({
+  ...comment,
+  time: formatTime(comment.time as number),
+  reply: comment.reply.map(reply => ({
+    ...reply,
+    time: formatTime(reply.time as number),
+  })),
+}));
 
 </script>
 
@@ -146,19 +232,6 @@ const comments = [
   width: 100%;
   border-radius: 5px;
   margin-top: 10px;
-}
-
-.comment-img {
-  width: 100px;
-  height: auto;
-  object-fit: cover;
-}
-
-.comment-row {
-  width: 100%;
-  margin-bottom: 16px;
-  display: flex;
-  align-items: center;
 }
 
 </style>
