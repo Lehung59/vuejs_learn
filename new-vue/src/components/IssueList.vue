@@ -1,5 +1,7 @@
 <template>
-
+  <a-input-search v-model:value="keyword" placeholder="Key word" enter-button s />
+  <br />
+  <br />
 
   <a-button @click="showModal" type="primary" style="margin-bottom: 10px">Thêm vấn đề</a-button>
   <a-modal v-model:open="open" title="Thông tin vấn đề" @ok="handleOk">
@@ -9,25 +11,68 @@
         layout="horizontal"
         style="max-width: 600px"
     >
-      <a-form-item label="Tên vấn đề" v-model:value="formState.name">
-        <a-input >
+      <a-form-item label="Tên vấn đề">
+        <a-input v-model:value="formState.name">
 
         </a-input>
       </a-form-item>
+      {{ formState.name }}
 
-      <a-form-item label="Mô tả" v-model:value="formState.description">
-        <a-textarea :rows="4" />
+      <a-form-item label="Mô tả">
+        <a-textarea :rows="4" v-model:value="formState.description"/>
       </a-form-item>
-      <a-form-item label="Tên dự án">
+      {{ formState.description }}
+
+
+      <a-form-item
+          name="Tên dự án"
+          label="Tên dự án"
+      >
         <a-select
             v-model:value="formState.projectId"
-            style="width: 120px"
-            :options="options"
-            :field-names="{ label: 'label', value: 'value' }"
+            mode="multiple"
+            :options="optionsProject"
 
-            @change="handleChange"
+        >
+        </a-select>
+      </a-form-item>
+      {{ formState.projectId }}
+
+
+      <a-form-item
+          name="Bộ phận"
+          label="Bộ phận"
+      >
+        <a-select
+            v-model:value="formState.department"
+            mode="multiple"
+            :options="optionsDepartment"
+
+        >
+        </a-select>
+      </a-form-item>
+      {{ formState.department }}
+
+      <a-form-item label="Công nghệ">
+        <a-select
+            v-model:value="formState.technology"
+            style="width: 120px"
+            :options="optionsTechnology"
+            :field-names="{ label: 'label', value: 'value' }"
         ></a-select>
       </a-form-item>
+      {{ formState.technology }}
+
+
+      <a-form-item label="Độ nghiêm trọng">
+        <a-select
+            v-model:value="formState.severity"
+            style="width: 120px"
+            :options="optionsSeverity"
+            :field-names="{ label: 'label', value: 'value' }"
+        ></a-select>
+      </a-form-item>
+      {{ formState.severity }}
 
       <a-form-item label="Docs">
         <div class="clearfix">
@@ -47,7 +92,7 @@
         >
           <a-button>
             <upload-outlined></upload-outlined>
-            Upload png only
+            Upload image
           </a-button>
         </a-upload>
       </a-form-item>
@@ -76,7 +121,6 @@
           </a-tag>
         </span>
       </template>
-
     </template>
 
   </a-table>
@@ -87,7 +131,7 @@ import {ref, reactive} from "vue";
 import {useRouter} from "vue-router";
 import {UploadOutlined} from "@ant-design/icons-vue";
 import type {UploadProps} from 'ant-design-vue';
-import type { SelectProps } from 'ant-design-vue';
+import type {SelectProps} from 'ant-design-vue';
 
 
 interface DataRecord {
@@ -131,15 +175,19 @@ const columns = [
 
 ];
 
-const formState = {
-  name: '',
+const formState = reactive({
+  name: 'dasda',
   description: '',
-  projectId: 0,
-  docsList: <UploadProps['fileList']>[],
-  imageList: <UploadProps['fileList']>[],
+  projectId: [],
+  docsList: [],
+  imageList: [],
+  department: [],
+  technology: '',
+  severity: 0,
 
-}
-const options = ref<SelectProps['options']>([
+})
+
+const optionsProject = ref<SelectProps['options']>([
   {
     value: 100,
     label: 'Jack (100)',
@@ -150,17 +198,40 @@ const options = ref<SelectProps['options']>([
   },
 ]);
 
-// const handleChange: SelectProps['onChange'] = value => {
-//
-//   formState.projectId = value.;
-//
-//   console.log(value);
-// };
+const optionsDepartment = ref<SelectProps['options']>([
+  {
+    value: 'D1',
+    label: 'D1',
+  },
+  {
+    value: 'D2',
+    label: 'D2',
+  }
+])
 
-const handleChange: SelectProps['onChange'] = (value, option) => {
-  formState.projectId = value; // Gán giá trị thực tế
-  console.log("Selected:", option.label); // Hiển thị label được chọn
-};
+const optionsTechnology = ref<SelectProps['options']>([
+  {
+    value: 'Java',
+    label: 'Java',
+  },
+  {
+    value: 'VueJs',
+    label: 'Vuejs',
+  }
+])
+
+const optionsSeverity = ref<SelectProps['options']>([
+  {
+    value: 1,
+    label: 'Mức 1'
+  },
+  {
+    value: 2,
+    label: 'Mức 2'
+  }
+])
+
+const keyword = ref<string>('');
 
 
 const data = ref<DataRecord[]>([
@@ -199,15 +270,18 @@ const customRow = (record: DataRecord) => ({
 
 })
 
+const docsList = ref<UploadProps['fileList']>([]);
+const imgList = ref<UploadProps['fileList']>([]);
+
 const handleOk = () => {
   formState.docsList = docsList;
   formState.imageList = imgList;
-  console.log(formState);
+  console.log(formState.docsList);
   formState.name = '';
   formState.description = '';
   formState.docsList = []
   formState.imageList = [];
-  formState.projectId = 0;
+  formState.projectId = [];
 
   open.value = false;
 };
@@ -222,8 +296,6 @@ const showModal = () => {
 };
 
 
-const docsList = ref<UploadProps['fileList']>([]);
-const imgList = ref<UploadProps['fileList']>([]);
 
 const beforeUpload = (file: UploadProps['fileList'][number], type: 'image' | 'doc') => {
   return false;
