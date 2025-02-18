@@ -4,10 +4,20 @@ import { createApp } from 'vue'
 import App from './App.vue'
 import { Layout, Menu, Table , Button, Tag, Divider, Col, Row, Form, Input, Image, Modal, Upload, Avatar, Comment, Select} from 'ant-design-vue';
 import router from './router'
+import 'vuetify/styles'
+import { createVuetify } from 'vuetify'
+import * as components from 'vuetify/components'
+import * as directives from 'vuetify/directives'
+import '@mdi/font/css/materialdesignicons.css'
+
 
 const app = createApp(App)
-
-app.use(router)
+const vuetify = createVuetify({
+    components,
+    directives,
+})
+app.use(vuetify)
+app.use(router);
 app.use(Layout);
 app.use(Menu);
 app.use(Table);

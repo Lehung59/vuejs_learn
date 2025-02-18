@@ -1,7 +1,42 @@
 <template>
-  <a-input-search v-model:value="keyword" placeholder="Key word" enter-button s />
-  <br />
-  <br />
+
+
+  <div class="d-flex flex-row mb-2 ">
+    <!--    <v-sheet-->
+    <!--        v-for="n in 3"-->
+    <!--        :key="n"-->
+    <!--        class="ma-2 pa-2"-->
+    <!--    >-->
+    <!--      justify-space-between-->
+    <!--    </v-sheet>-->
+    <div class="w-25 mr-2 pr-2">
+      <v-select
+          v-model="model"
+          :items="items"
+          label="Dự án"
+          chips
+          multiple
+      ></v-select>
+      <!--    {{model}}--></div>
+    <div class="w-25 mr-2 pr-2">
+      <v-select
+        v-model="model2"
+        :items="items2"
+        label="Công nghệ"
+        chips
+        multiple
+    ></v-select>
+      <!--    {{model2}}--></div>
+
+
+
+  </div>
+
+
+  <a-input-search v-model:value="keyword" placeholder="Key word" enter-button s/>
+  {{ keyword }}
+  <br/>
+  <br/>
 
   <a-button @click="showModal" type="primary" style="margin-bottom: 10px">Thêm vấn đề</a-button>
   <a-modal v-model:open="open" title="Thông tin vấn đề" @ok="handleOk">
@@ -127,7 +162,7 @@
 </template>
 <script lang="ts" setup>
 
-import {ref, reactive} from "vue";
+import {ref, reactive, nextTick, watch} from "vue";
 import {useRouter} from "vue-router";
 import {UploadOutlined} from "@ant-design/icons-vue";
 import type {UploadProps} from 'ant-design-vue';
@@ -186,6 +221,13 @@ const formState = reactive({
   severity: 0,
 
 })
+
+const items = ref<string[]>(['Gaming', 'Programming', 'Vue', 'Vuetify']);
+const model = ref<string[]>([]);
+
+const items2 = ref<string[]>(['Gaming', 'Programming', 'Vue', 'Vuetify']);
+const model2 = ref<string[]>([]);
+
 
 const optionsProject = ref<SelectProps['options']>([
   {
@@ -294,7 +336,6 @@ const open = ref<boolean>(false);
 const showModal = () => {
   open.value = true;
 };
-
 
 
 const beforeUpload = (file: UploadProps['fileList'][number], type: 'image' | 'doc') => {

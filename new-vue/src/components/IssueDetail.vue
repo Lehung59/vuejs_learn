@@ -53,11 +53,11 @@
     </a-col>
 
 
-    <a-comment v-for="i in formattedData" :key="i.id" style="width: 100%; padding:0 10px">
+    <a-comment v-for="(i,index) in formattedData" :key="i.id" style="width: 100%; padding:0 10px">
       <template #actions style="padding:0">
-        <span key="comment-nested-reply-to">Reply to</span>
+        <span @click="toggleReply(index, i )">Reply to</span>
       </template>
-      <template #author style="padding:0 0">
+      <template #author style="padding:0">
         <a>{{ i.name }}</a>
         <span>&nbsp;  {{ i.time }}</span>
       </template>
@@ -71,7 +71,7 @@
       </template>
       <a-comment v-for="j in i.reply" :key="j.id" style="padding:0 0">
         <template #actions>
-          <span>Reply to</span>
+          <span @click="toggleReply(index, j)">Reply to</span>
         </template>
         <template #author>
           <a>{{ j.name }}</a>
@@ -85,7 +85,28 @@
             {{ j.content }}
           </p>
         </template>
+
+
       </a-comment>
+
+      <v-col
+          cols="12"
+          sm="6"
+          style="padding-left: 0"
+          v-show="replyVisible[index]"
+
+      >
+        <v-textarea
+            class="mx-0"
+            label="Trả lời"
+            prepend-icon="mdi-comment"
+            rows="1"
+            v-model="replyTexts[index]"
+        >
+        </v-textarea>
+      </v-col>
+
+
     </a-comment>
 
 
@@ -115,7 +136,7 @@ watchEffect(() => {
 });
 
 const goBack = () => {
-  router.back();
+  router.push('/issue');
 };
 
 const open = ref<boolean>(false);
@@ -131,9 +152,6 @@ const handleOk = (e: MouseEvent) => {
 const labelCol = {style: {width: '150px'}};
 const wrapperCol = {span: 14};
 
-const cardStyle: CSSProperties = {
-  width: '620px',
-};
 const imgStyle: CSSProperties = {
   display: 'block',
   width: '270px',
@@ -205,7 +223,18 @@ const data = [
     ]
   }
 ]
+const replyTexts = ref<string[]>(Array(data.length).fill(''));
 
+const replyVisible = ref<number[]>(Array(data.length).fill(0));
+
+const toggleReply = (index: number, comment: Comment): void => {
+  replyVisible.value[index] = !replyVisible.value[index];
+  console.log(comment.name)
+  console.log(replyTexts.value[index]);
+  if (replyVisible.value[index] && replyTexts.value[index] === '') {
+    replyTexts.value[index] = `@${comment.name}`;
+  }
+};
 
 const formatTime = (timestamp: number): string =>
     new Date(timestamp).toLocaleString();
