@@ -20,14 +20,13 @@
       <!--    {{model}}--></div>
     <div class="w-25 mr-2 pr-2">
       <v-select
-        v-model="model2"
-        :items="items2"
-        label="Công nghệ"
-        chips
-        multiple
-    ></v-select>
+          v-model="model2"
+          :items="items2"
+          label="Công nghệ"
+          chips
+          multiple
+      ></v-select>
       <!--    {{model2}}--></div>
-
 
 
   </div>
@@ -162,11 +161,12 @@
 </template>
 <script lang="ts" setup>
 
-import {ref, reactive, nextTick, watch} from "vue";
+import {ref, reactive, nextTick, watch, onMounted} from "vue";
 import {useRouter} from "vue-router";
 import {UploadOutlined} from "@ant-design/icons-vue";
 import type {UploadProps} from 'ant-design-vue';
 import type {SelectProps} from 'ant-design-vue';
+import axios from 'axios'
 
 
 interface DataRecord {
@@ -210,12 +210,60 @@ const columns = [
 
 ];
 
+interface PagingDTO {
+  // Các thuộc tính của PagingDTO, ví dụ:
+  page: number;
+  size: number;
+  totalItems: number;
+  totalPages: number;
+}
+
+interface FileDto {
+  file_name: string;
+  file_type: string;
+  file_path: string;
+  file_size: number;
+  created_at: number;
+}
+
+interface IssueResponse {
+  id: number;
+  title: string;
+  description: string;
+  root_cause: string;
+  solution: string;
+  status: string;
+  created_by_user_id: number;
+  created_by_user_name: string;
+  reviewed_by_user_id: number;
+  reviewed_by_user_name: string;
+  tags: string[];
+  categories: string[];
+  projects: string[];
+  files: FileDto[];
+  img_paths: string[];
+}
+
+interface PagingResponse<T> {
+  paging: PagingDTO;
+  items: T[];
+}
+
+interface BaseResponse<T> {
+  code: number;
+  message: string;
+  data: T;
+}
+
+const data = ref<IssueResponse[]>([]);
+
+
 const formState = reactive({
-  name: 'dasda',
+  title: 'dasda',
   description: '',
-  projectId: [],
-  docsList: [],
-  imageList: [],
+  project_id: [],
+  files: [],
+  image: [],
   department: [],
   technology: '',
   severity: 0,
@@ -276,31 +324,6 @@ const optionsSeverity = ref<SelectProps['options']>([
 const keyword = ref<string>('');
 
 
-const data = ref<DataRecord[]>([
-  {
-    id: '1',
-    title: 'Error 1',
-    project: '1',
-    created_by: 'HungNL',
-    date: '2014-05-07',
-    name: 'John Brown',
-    age: 32,
-    address: 'New York No. 1 Lake Park, New York No. 1 Lake Park',
-    severity: [1],
-  },
-  {
-    id: '2',
-    title: 'Error 2',
-    project: '2',
-    created_by: 'HungNL',
-    date: '2014-05-07',
-    name: 'Jim Green',
-    age: 42,
-    address: 'London No. 2 Lake Park, London No. 2 Lake Park',
-    severity: [2],
-  },
-
-]);
 const router = useRouter();
 
 const detail = () => {
@@ -319,6 +342,9 @@ const handleOk = () => {
   formState.docsList = docsList;
   formState.imageList = imgList;
   console.log(formState.docsList);
+
+
+
   formState.name = '';
   formState.description = '';
   formState.docsList = []
@@ -340,9 +366,23 @@ const showModal = () => {
 
 const beforeUpload = (file: UploadProps['fileList'][number], type: 'image' | 'doc') => {
   return false;
+
+
 };
 
+onMounted(async () => {
+  try {
+    // Gọi API lấy danh sách issue. Đường dẫn API được thay đổi cho phù hợp với server của bạn.
+    const response = await axios.get<BaseResponse<PagingResponse<IssueResponse>>>('http://localhost:9000/v1/api/issue/list');
 
+    // Kiểm tra dữ liệu trả về và gán items cho biến data
+    if (response.data && response.data.data && response.data.data.items) {
+      data.value = response.data.data.items;
+    }
+  } catch (error) {
+    console.error("Lỗi khi gọi API:", error);
+  }
+});
 </script>
 
 <style>
